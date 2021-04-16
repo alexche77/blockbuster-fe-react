@@ -13,9 +13,11 @@ import {
   userRegisterReducer,
   userUpdateProfileReducer,
 } from "./reducers/userReducers";
+import { orderListReducer } from "./reducers/orderReducer";
 
 const reducer = combineReducers({
   movieList: movieListReducer,
+  orderList: orderListReducer,
   movieDetails: movieDetailReducer,
   cart: cartReducer,
   userLogin: userLoginReducer,

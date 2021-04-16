@@ -14,6 +14,8 @@ import MovieListScreen from "./screens/MovieListScreen";
 import OrdersListScreen from "./screens/OrdersListScreen";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import axios from "axios";
+axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const App = () => {
   const userLogin = useSelector((state) => state.userLogin);
@@ -34,12 +36,18 @@ const App = () => {
           userInfo.groups !== undefined &&
           userInfo.groups.includes("Admins")
       );
+      if (userInfo.auth_token) {
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Token ${userInfo.auth_token}`;
+      }
     } else {
       setIsLoggedIn(false);
       setIsStaff(false);
       setIsAdmin(false);
+      axios.defaults.headers.common["Authorization"] = null;
     }
-  }, [userInfo]);
+  }, [userInfo, axios]);
   return (
     <Router>
       <Header />
@@ -85,8 +93,13 @@ const App = () => {
             component={MovieScreen}
           />
           <ProtectedRoute
-            isEnabled={isStaff}
+            isEnabled={isStaff || isAdmin}
             path="/orders"
+            component={OrdersListScreen}
+          />
+          <ProtectedRoute
+            isEnabled={isStaff || isAdmin}
+            path="/new-order"
             component={OrdersListScreen}
           />
           <ProtectedRoute

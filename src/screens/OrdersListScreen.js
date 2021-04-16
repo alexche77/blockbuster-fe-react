@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
+import { Button } from "react-bootstrap";
 import Table from 'react-bootstrap/Table'
 import { useDispatch, useSelector } from "react-redux";
 import { listOrders } from "../actions/orderActions";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 
-const OrdersListScreen = () => {
+const OrdersListScreen = ({history}) => {
     const distpatch = useDispatch();
     const orderList = useSelector((state) => state.orderList);
     const { loading, error, orders } = orderList;
-
+    const goToAddNew = () => history.push('/new-order')
     // useEffect: This runs as soon as the component loads
     useEffect(() => {
         distpatch(listOrders());
@@ -18,6 +19,7 @@ const OrdersListScreen = () => {
     return (
         <>
             <h1>Orders</h1>
+            <Button onClick={goToAddNew}>Add new</Button>
             {loading ? (
                 <Loader />
             ) : error ? (
