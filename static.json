@@ -1,0 +1,12 @@
+{
+  "root": "build/",
+  "routes": {
+    "/**": "index.html"
+  },
+  "proxies": {
+    "/api/": {
+      "origin": "https://whispering-beach-73464.herokuapp.com/"
+    }
+  },
+  "https_only": true
+}
