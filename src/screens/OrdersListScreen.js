@@ -10,7 +10,7 @@ const OrdersListScreen = ({history}) => {
     const distpatch = useDispatch();
     const orderList = useSelector((state) => state.orderList);
     const { loading, error, orders } = orderList;
-    const goToAddNew = () => history.push('/new-order')
+    const goToAddNew = () => history.push('/order/new')
     // useEffect: This runs as soon as the component loads
     useEffect(() => {
         distpatch(listOrders());

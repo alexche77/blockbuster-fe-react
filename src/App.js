@@ -12,6 +12,7 @@ import ProfileScreen from "./screens/ProfileScreen";
 import UserScreen from "./screens/UserScreen";
 import MovieListScreen from "./screens/MovieListScreen";
 import OrdersListScreen from "./screens/OrdersListScreen";
+import OrderScreen from "./screens/OrderScreen";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -99,8 +100,8 @@ const App = () => {
           />
           <ProtectedRoute
             isEnabled={isStaff || isAdmin}
-            path="/new-order"
-            component={OrdersListScreen}
+            path="/order/:id"
+            component={OrderScreen}
           />
           <ProtectedRoute
             isEnabled={isLoggedIn}
