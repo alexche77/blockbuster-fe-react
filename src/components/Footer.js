@@ -7,7 +7,7 @@ const Footer = () => {
             <Container>
                 <Row>
                     <Col className='text-center py-3'>
-                        Copyright &copy; BlockBuster
+                        Copyright &copy; BlockBuster - v {process.env.REACT_APP_VERSION}
                     </Col>
                 </Row>
             </Container>
