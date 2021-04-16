@@ -47,7 +47,7 @@ const App = () => {
       setIsAdmin(false);
       axios.defaults.headers.common["Authorization"] = null;
     }
-  }, [userInfo, axios]);
+  }, [userInfo]);
   return (
     <Router>
       <Header />
