@@ -14,10 +14,7 @@ import MovieListScreen from "./screens/MovieListScreen";
 import OrdersListScreen from "./screens/OrdersListScreen";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
-import { API_URL } from "./constants/appConstants";
-axios.defaults.baseURL = API_URL;
-axios.defaults.headers.post["Content-Type"] = "application/json";
+
 const App = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;

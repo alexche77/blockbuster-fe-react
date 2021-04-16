@@ -30,7 +30,7 @@ export const login = (username, password) => async (dispatch) => {
     };
 
     const response = await axios.post(
-      "/auth/token/login/",
+      "/api/auth/token/login/",
       { username, password },
       config
     );
@@ -79,13 +79,13 @@ export const register = (username, email, password) => async (dispatch) => {
     };
 
     let { data } = await axios.post(
-      "/auth/users/",
+      "/api/auth/users/",
       { username, email, password },
       config
     );
 
     const response = await axios.post(
-      "/auth/token/login/",
+      "/api/auth/token/login/",
       { username, password },
       config
     );
