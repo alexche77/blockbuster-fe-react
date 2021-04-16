@@ -14,7 +14,10 @@ import MovieListScreen from "./screens/MovieListScreen";
 import OrdersListScreen from "./screens/OrdersListScreen";
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-
+import axios from "axios";
+import { API_URL } from "./constants/appConstants";
+axios.defaults.baseURL = API_URL;
+axios.defaults.headers.post["Content-Type"] = "application/json";
 const App = () => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -22,15 +25,22 @@ const App = () => {
   const [isStaff, setIsStaff] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
-
     if (userInfo) {
-      setIsLoggedIn(true)
-      setIsStaff(userInfo && (userInfo.groups !== undefined && userInfo.groups.includes('Staff')))
-      setIsAdmin(userInfo && (userInfo.groups !== undefined && userInfo.groups.includes('Admins')))
+      setIsLoggedIn(true);
+      setIsStaff(
+        userInfo &&
+          userInfo.groups !== undefined &&
+          userInfo.groups.includes("Staff")
+      );
+      setIsAdmin(
+        userInfo &&
+          userInfo.groups !== undefined &&
+          userInfo.groups.includes("Admins")
+      );
     } else {
-      setIsLoggedIn(false)
-      setIsStaff(false)
-      setIsAdmin(false)
+      setIsLoggedIn(false);
+      setIsStaff(false);
+      setIsAdmin(false);
     }
   }, [userInfo]);
   return (
@@ -38,15 +48,55 @@ const App = () => {
       <Header />
       <main className="py-5 my-5">
         <Container className="mt-3">
-          <ProtectedRoute isEnabled={true} path="/login" component={LoginScreen} />
-          <ProtectedRoute isEnabled={true} path="/register" component={RegisterScreen} />
-          {isAdmin && <ProtectedRoute isEnabled={isAdmin} path="/users" component={UserScreen} />}
-          {isAdmin && <ProtectedRoute isEnabled={isAdmin} path="/user/:id" component={ProfileScreen} />}
-          <ProtectedRoute isEnabled={isLoggedIn} path="/profile" component={ProfileScreen} />
-          <ProtectedRoute isEnabled={true} path="/movies" component={MovieListScreen}/>
-          <ProtectedRoute isEnabled={true} path="/movie/:id" component={MovieScreen} />
-          <ProtectedRoute isEnabled={isStaff} path="/orders" component={OrdersListScreen}/>
-          <ProtectedRoute isEnabled={isLoggedIn} path="/cart/:id?" component={CartScreen} />
+          <ProtectedRoute
+            isEnabled={true}
+            path="/login"
+            component={LoginScreen}
+          />
+          <ProtectedRoute
+            isEnabled={true}
+            path="/register"
+            component={RegisterScreen}
+          />
+          {isAdmin && (
+            <ProtectedRoute
+              isEnabled={isAdmin}
+              path="/users"
+              component={UserScreen}
+            />
+          )}
+          {isAdmin && (
+            <ProtectedRoute
+              isEnabled={isAdmin}
+              path="/user/:id"
+              component={ProfileScreen}
+            />
+          )}
+          <ProtectedRoute
+            isEnabled={isLoggedIn}
+            path="/profile"
+            component={ProfileScreen}
+          />
+          <ProtectedRoute
+            isEnabled={true}
+            path="/movies"
+            component={MovieListScreen}
+          />
+          <ProtectedRoute
+            isEnabled={true}
+            path="/movie/:id"
+            component={MovieScreen}
+          />
+          <ProtectedRoute
+            isEnabled={isStaff}
+            path="/orders"
+            component={OrdersListScreen}
+          />
+          <ProtectedRoute
+            isEnabled={isLoggedIn}
+            path="/cart/:id?"
+            component={CartScreen}
+          />
           <Route exact path="/">
             <Redirect to="/movies" />
           </Route>
