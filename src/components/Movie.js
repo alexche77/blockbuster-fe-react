@@ -7,11 +7,11 @@ const Movie = ({ movie }) => {
     return (
         <Card className="my-3 p-3 rounded">
 
-            <Link to={`/movie/${movie.id}`}>
+            <Link to={`/movie/${movie.imdb_id}`}>
                 <Card.Img src={movie.info.Poster} variant='top' />
             </Link>
             <Card.Body>
-                <Link to={`/movie/${movie.id}`}>
+                <Link to={`/movie/${movie.imdb_id}`}>
                     <Card.Title as='div'>
                         <strong>{movie.info.Title}</strong>
                     </Card.Title>

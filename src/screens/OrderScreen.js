@@ -88,8 +88,8 @@ const OrderScreen = ({ history, match }) => {
           <Form onSubmit={submitHandler}>
             <Form.Group controlId="orderForm.OrderTypeSelect">
               <Form.Label>Order type</Form.Label>
-              <Form.Control as="select" onChange={orderTypeChanged}>
-                <option selected disabled>
+              <Form.Control defaultValue={order_type} as="select" onChange={orderTypeChanged}>
+                <option disabled>
                   Select order type...
                 </option>
                 <option value={5}>Purchase</option>
