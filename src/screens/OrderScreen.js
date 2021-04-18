@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "react-bootstrap/Button";
-import { Badge, Form, Col } from "react-bootstrap";
+import { Badge, Form, Col, Container } from "react-bootstrap";
 import {
   cleanUpOrdersState,
   listOrderDetails,
@@ -13,9 +13,9 @@ import FormContainer from "../components/FormContainer";
 import MoviePickerModal from "../components/MoviePickerModal";
 import { Link } from "react-router-dom";
 import { listMovements } from "../actions/movementsActions";
-import { addMovement } from "../services/orderService";
+import { addMovement, deleteOrder, publishOrder } from "../services/orderService";
 import Movement from "../components/Movement";
-const OrderScreen = ({ match }) => {
+const OrderScreen = ({ match, history }) => {
   const [pickingMovie, setPickingMovie] = useState(false);
   const [errorMessage, seterrorMessage] = useState()
   const orderId = match.params.id;
@@ -25,10 +25,10 @@ const OrderScreen = ({ match }) => {
   const { isUpdating, loading, error, order } = orderDetails;
   const movementsList = useSelector((state) => state.movementsList);
   const { loadingMovements, errorMovements, movements } = movementsList;
-  
+
   const moviePicked = (movieId) => {
     // Adding movie as movement to order
-    addMovement(orderId, { movie_id: movieId, quantity: 1, price: 0 }).then((response) => {
+    addMovement(orderId, { movie_id: movieId, quantity: 1, price: 0, unit_price: 0 }).then((response) => {
       console.log(response.data)
       dispatch(listMovements(orderId))
     }).catch(error => {
@@ -37,7 +37,7 @@ const OrderScreen = ({ match }) => {
         : error.detail
       console.error(err)
       seterrorMessage(err)
-      setTimeout(()=>seterrorMessage(null), 5000)
+      setTimeout(() => seterrorMessage(null), 5000)
     })
 
   };
@@ -66,6 +66,27 @@ const OrderScreen = ({ match }) => {
     }
     return helpMessage;
   };
+
+  const handlePublish = () => {
+    publishOrder(orderId).then(() => history.push('/orders')).catch((error) => {
+      let _err = error.response && error.response.data.detail
+        ? error.response.data.detail
+        : error.detail;
+      seterrorMessage(_err)
+
+    })
+  }
+
+  const handleDelete = () => {
+    // TODO Implement double check mech
+    deleteOrder(orderId).then(() => history.push('/orders')).catch((error) => {
+      let _err = error.response && error.response.data.detail
+        ? error.response.data.detail
+        : error.detail;
+      seterrorMessage(_err)
+
+    })
+  }
 
   const orderTypeChanged = ({ target }) => {
     if (target.value === undefined) return;
@@ -102,6 +123,7 @@ const OrderScreen = ({ match }) => {
                   defaultValue={order.order_type}
                   as="select"
                   onChange={orderTypeChanged}
+                  disabled={order.order_state !== 0}
                 >
                   <option disabled>Select order type...</option>
                   <option value={5}>Purchase</option>
@@ -116,12 +138,19 @@ const OrderScreen = ({ match }) => {
                 )}
               </Form.Group>
 
-              <Button className="w-100" onClick={() => setPickingMovie(true)}> Add movie </Button>
+              {order.order_state === 0 ? (
+                <>
+                  <Button className="w-100" onClick={() => setPickingMovie(true)}> Add movie </Button>
+                  <div>
+                    <Button className="w-50" variant="success" onClick={handlePublish}> Publish </Button>
+                    <Button className="w-50" variant="danger" onClick={handleDelete}> Delete </Button>
+                  </div></>
+              ) : <Message variant="warning">No actions available, this order is locked</Message>}
               <h2 className="mt-4">Movements</h2>
               {loadingMovements && <Loader></Loader>}
               {errorMessage && <Message variant="danger" >{errorMessage}</Message>}
               {movements.map(movement => (
-                <Movement movement={movement} />
+                <Movement movement={movement} key={movement.id} />
               ))}
             </Form>
           </FormContainer>

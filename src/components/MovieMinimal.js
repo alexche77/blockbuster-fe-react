@@ -1,5 +1,6 @@
 import React from 'react'
-import { Card, Row, Col, Container, Image, Button } from 'react-bootstrap'
+import { Card, Row, Col, Container, Image, Button, Badge } from 'react-bootstrap'
+import Message from './Message';
 import Rating from './Rating'
 
 const MovieMinimal = ({ movie, handleClick }) => {
@@ -26,6 +27,7 @@ const MovieMinimal = ({ movie, handleClick }) => {
                     <Col><Button className="ml-1" variant="primary" onClick={handleClick}>Select</Button></Col>
                 </Row>
             }
+            {movie.profit_percentage < 1 && <Message variant="warning">Attention needed: Profit margin has not been specified. This product won't be listed as available.</Message>}
         </Container>
     )
 }

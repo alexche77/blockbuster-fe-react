@@ -8,10 +8,10 @@ import {
   MOVIE_DETAILS_SUCCESS,
 } from "../constants/movieConstants";
 
-export const listMovies = () => async (dispatch) => {
+export const listMovies = (params) => async (dispatch) => {
   try {
     dispatch({ type: MOVIE_LIST_REQUEST });
-    const { data } = await axios.get("/api/movies/");
+    const { data } = await axios.get(`/api/movies/${params?params:''}`);
     dispatch({ type: MOVIE_LIST_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -27,7 +27,7 @@ export const listMovies = () => async (dispatch) => {
 export const listMovieDetails = (id) => async (dispatch) => {
   try {
     console.log("Movie details!")
-    dispatch({ type: MOVIE_DETAILS_REQUEST });    
+    dispatch({ type: MOVIE_DETAILS_REQUEST });
     const { data } = await axios.get(`/api/movies/${id}/`);
     console.log(data)
     dispatch({ type: MOVIE_DETAILS_SUCCESS, payload: data });

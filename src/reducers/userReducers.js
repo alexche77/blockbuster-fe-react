@@ -43,7 +43,7 @@ export const userRegisterReducer = (state = {}, action) => {
     case USER_REGISTER_FAIL:
       return { loading: false, error: action.payload };
     case USER_LOGOUT_REQUEST:
-        return {};
+      return {};
     default:
       return state;
   }
@@ -61,12 +61,12 @@ export const userDetailsReducer = (state = { user: {} }, action) => {
       return state;
   }
 };
-export const userListReducer = (state = { users: [] }, action) => {
+export const userListReducer = (state = { userResponse: { results: [] } }, action) => {
   switch (action.type) {
     case USER_LIST_REQUEST:
-      return { users:[], loading: true };
+      return { loading: true, userResponse: { results: [] } };
     case USER_LIST_SUCCESS:
-      return { loading: false, users: action.payload };
+      return { loading: false, userResponse: action.payload };
     case USER_LIST_FAIL:
       return { loading: false, error: action.payload };
     default:

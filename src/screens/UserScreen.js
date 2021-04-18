@@ -9,7 +9,7 @@ import Message from "../components/Message";
 const UserScreen = () => {
   const distpatch = useDispatch();
   const userList = useSelector((state) => state.userList);
-  const { loading, error, users } = userList;
+  const { loading, error,  userResponse: { next, previous, count, results } } = userList;
 
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
@@ -25,7 +25,7 @@ const UserScreen = () => {
         <Message variant="danger"> {error}</Message>
       ) : (
         <Row>
-          {users.map((user) => (
+          {results.map((user) => (
             <Col sm={12} md={6} lg={4} xl={4} key={user.id}>
               <User user={user}></User>
             </Col>
