@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "react-bootstrap/Button";
-import { Badge, Form } from "react-bootstrap";
+import { Badge, Form, Col } from "react-bootstrap";
 import {
   cleanUpOrdersState,
   listOrderDetails,
@@ -12,22 +12,34 @@ import Message from "../components/Message";
 import FormContainer from "../components/FormContainer";
 import MoviePickerModal from "../components/MoviePickerModal";
 import { Link } from "react-router-dom";
-
+import { listMovements } from "../actions/movementsActions";
+import { addMovement } from "../services/orderService";
+import Movement from "../components/Movement";
 const OrderScreen = ({ match }) => {
   const [pickingMovie, setPickingMovie] = useState(false);
-
+  const [errorMessage, seterrorMessage] = useState()
   const orderId = match.params.id;
 
   const dispatch = useDispatch();
   const orderDetails = useSelector((state) => state.orderDetails);
   const { isUpdating, loading, error, order } = orderDetails;
-  const submitHandler = (e) => {
-    e.preventDefault();
-    // dispatch(save(orderId, order_type, movements));
-  };
+  const movementsList = useSelector((state) => state.movementsList);
+  const { loadingMovements, errorMovements, movements } = movementsList;
+  
+  const moviePicked = (movieId) => {
+    // Adding movie as movement to order
+    addMovement(orderId, { movie_id: movieId, quantity: 1, price: 0 }).then((response) => {
+      console.log(response.data)
+      dispatch(listMovements(orderId))
+    }).catch(error => {
+      let err = error.response && error.response.data.detail
+        ? error.response.data.detail
+        : error.detail
+      console.error(err)
+      seterrorMessage(err)
+      setTimeout(()=>seterrorMessage(null), 5000)
+    })
 
-  const moviePicked = (imdb_id) => {
-    console.log(imdb_id);
   };
 
   const getOrderTypeHelpMessage = (orderType) => {
@@ -62,6 +74,7 @@ const OrderScreen = ({ match }) => {
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
     dispatch(listOrderDetails(orderId));
+    dispatch(listMovements(orderId));
     return () => {
       dispatch(cleanUpOrdersState());
     };
@@ -76,41 +89,50 @@ const OrderScreen = ({ match }) => {
       ) : error ? (
         <Message variant="danger"> {error}</Message>
       ) : (
-        <FormContainer>
-          <h1>Order #{orderId}</h1>
-          <Badge variant="success">Status: {order.state_label}</Badge>
-          {error && <Message variant="danger"> {error}</Message>}
-          {isUpdating && <Loader />}
-          <Form onSubmit={submitHandler}>
-            <Form.Group controlId="orderForm.OrderTypeSelect">
-              <Form.Label>Order type</Form.Label>
-              <Form.Control
-                defaultValue={order.order_type}
-                as="select"
-                onChange={orderTypeChanged}
-              >
-                <option disabled>Select order type...</option>
-                <option value={5}>Purchase</option>
-                <option value={4}>Defective return</option>
-                <option value={6}>Adjustment (Add)</option>
-                <option value={7}>Adjustment (Remove)</option>
-              </Form.Control>
-              {order.order_type && (
-                <Message variant="info">
-                  {getOrderTypeHelpMessage(order.order_type)}
-                </Message>
-              )}
-            </Form.Group>
+        <>
+          <FormContainer>
+            <h1>Order #{orderId}</h1>
+            <Badge variant="success">Status: {order.state_label}</Badge>
+            {error && <Message variant="danger"> {error}</Message>}
+            {isUpdating && <Loader />}
+            <Form >
+              <Form.Group controlId="orderForm.OrderTypeSelect">
+                <Form.Label>Order type</Form.Label>
+                <Form.Control
+                  defaultValue={order.order_type}
+                  as="select"
+                  onChange={orderTypeChanged}
+                >
+                  <option disabled>Select order type...</option>
+                  <option value={5}>Purchase</option>
+                  <option value={4}>Defective return</option>
+                  <option value={6}>Adjustment (Add)</option>
+                  <option value={7}>Adjustment (Remove)</option>
+                </Form.Control>
+                {order.order_type && (
+                  <Message variant="info">
+                    {getOrderTypeHelpMessage(order.order_type)}
+                  </Message>
+                )}
+              </Form.Group>
 
-            <MoviePickerModal
-              animation={false}
-              show={pickingMovie}
-              onHide={() => setPickingMovie(false)}
-              onMoviePicked={moviePicked}
-            />
-            <Button onClick={() => setPickingMovie(true)}> Add movie </Button>
-          </Form>
-        </FormContainer>
+              <Button className="w-100" onClick={() => setPickingMovie(true)}> Add movie </Button>
+              <h2 className="mt-4">Movements</h2>
+              {loadingMovements && <Loader></Loader>}
+              {errorMessage && <Message variant="danger" >{errorMessage}</Message>}
+              {movements.map(movement => (
+                <Movement movement={movement} />
+              ))}
+            </Form>
+          </FormContainer>
+          {/* Modal */}
+          <MoviePickerModal
+            animation={false}
+            show={pickingMovie}
+            onHide={() => setPickingMovie(false)}
+            onMoviePicked={moviePicked}
+          />
+        </>
       )}
     </>
   );

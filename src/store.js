@@ -14,10 +14,12 @@ import {
   userUpdateProfileReducer,
 } from "./reducers/userReducers";
 import { orderDetailReducer, orderListReducer } from "./reducers/orderReducer";
+import { movementListReducer } from "./reducers/movementsReducers";
 
 const reducer = combineReducers({
   movieList: movieListReducer,
   orderList: orderListReducer,
+  movementsList: movementListReducer,
   movieDetails: movieDetailReducer,
   orderDetails: orderDetailReducer,
   cart: cartReducer,

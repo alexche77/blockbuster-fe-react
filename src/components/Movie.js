@@ -17,7 +17,7 @@ const Movie = ({ movie }) => {
                     </Card.Title>
                 </Link>
                 <Card.Text as='div'>
-                    {movie.info.Ratings.map(rating => {
+                    {movie.info.Ratings && movie.info.Ratings.map(rating => {
                         return <Rating text={`${rating.Source}: ${rating.Value}`} color="black" key={rating.Source} />
                     })}
 

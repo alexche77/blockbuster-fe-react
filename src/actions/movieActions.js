@@ -17,9 +17,9 @@ export const listMovies = () => async (dispatch) => {
     dispatch({
       type: MOVIE_LIST_FAIL,
       payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+        error.response && error.response.data.detail
+          ? error.response.data.detail
+          : error.detail,
     });
   }
 };
@@ -35,9 +35,9 @@ export const listMovieDetails = (id) => async (dispatch) => {
     dispatch({
       type: MOVIE_DETAILS_FAIL,
       payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+        error.response && error.response.data.detail
+          ? error.response.data.detail
+          : error.detail,
     });
   }
 };

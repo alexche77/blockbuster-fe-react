@@ -37,33 +37,39 @@ const OrdersListScreen = ({ history }) => {
   return (
     <>
       <h1>Orders</h1>
-      <Button disabled={addingNew} onClick={addNew}>
-        {addingNew ? "Loading.." : "Add new"}
-      </Button>
+
       {loading ? (
         <Loader />
       ) : error ? (
         <Message variant="danger"> {error}</Message>
       ) : (
-        <Row>
-          {ordersResponse.count && (
-            <Pagination>
-              <Pagination.First />
-              <Pagination.Prev />
-              {ordersResponse.results.length == 10 && (
-                <>
-                  <Pagination.Next />
-                  <Pagination.Last />
-                </>
-              )}
-            </Pagination>
-          )}
-          {ordersResponse.results.map((order) => (
-            <Col sm={12} md={4} lg={4} xl={4} key={order.id}>
-              <Order order={order}></Order>
-            </Col>
-          ))}
-        </Row>
+        <>
+          <Row>
+            <Button disabled={addingNew} onClick={addNew}>
+              {addingNew ? "Loading.." : "Add new"}
+            </Button>
+          </Row>
+          <Row className="py-4">
+            {ordersResponse.count > 0 && (
+              <Pagination className="pagination">
+                <Pagination.First />
+                <Pagination.Prev />
+                {ordersResponse.results.length == 10 && (
+                  <>
+                    <Pagination.Next />
+                    <Pagination.Last />
+                  </>
+                )}
+              </Pagination>
+            )}
+          </Row>
+          <Row>
+            {ordersResponse.results.map((order) => (
+              <Col sm={12} md={4} lg={4} xl={4} key={order.id}>
+                <Order order={order}></Order>
+              </Col>
+            ))}
+          </Row></>
       )}
     </>
   );
