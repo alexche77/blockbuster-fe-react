@@ -7,12 +7,12 @@ import {
   MOVIE_DETAILS_SUCCESS,
 } from "../constants/movieConstants";
 
-export const movieListReducer = (state = { movies: [] }, action) => {
+export const movieListReducer = (state = { movieResponse: { results : [] } }, action) => {
   switch (action.type) {
     case MOVIE_LIST_REQUEST:
-      return { loading: true, movies: [] };
+      return { loading: true, movieResponse: { results : [] } };
     case MOVIE_LIST_SUCCESS:
-      return { loading: false, movies: action.payload };
+      return { loading: false, movieResponse: action.payload };
     case MOVIE_LIST_FAIL:
       return { loading: false, error: action.payload };
     default:

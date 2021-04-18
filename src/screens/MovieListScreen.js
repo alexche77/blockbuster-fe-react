@@ -9,7 +9,7 @@ import Message from "../components/Message";
 const MovieListScreen = () => {
   const distpatch = useDispatch();
   const movieList = useSelector((state) => state.movieList);
-  const { loading, error, movies } = movieList;
+  const { loading, error, movieResponse } = movieList;
 
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
@@ -25,7 +25,7 @@ const MovieListScreen = () => {
         <Message variant="danger"> {error}</Message>
       ) : (
         <Row>
-          {movies.map((movie) => (
+          { movieResponse.results.map((movie) => (
             <Col sm={12} md={6} lg={4} xl={4} key={movie.id}>
               <Movie movie={movie} />
             </Col>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Pagination } from "react-bootstrap";
 import { Col, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { listOrders } from "../actions/orderActions";
@@ -12,7 +12,7 @@ const OrdersListScreen = ({ history }) => {
   const distpatch = useDispatch();
   const orderList = useSelector((state) => state.orderList);
   const [addingNew, setAddingNew] = useState(false);
-  const { loading, error, orders } = orderList;
+  const { loading, error, ordersResponse } = orderList;
   const addNew = () => {
     setAddingNew(true);
     createOrder()
@@ -46,7 +46,19 @@ const OrdersListScreen = ({ history }) => {
         <Message variant="danger"> {error}</Message>
       ) : (
         <Row>
-          {orders.map((order) => (
+          {ordersResponse.count && (
+            <Pagination>
+              <Pagination.First />
+              <Pagination.Prev />
+              {ordersResponse.results.length == 10 && (
+                <>
+                  <Pagination.Next />
+                  <Pagination.Last />
+                </>
+              )}
+            </Pagination>
+          )}
+          {ordersResponse.results.map((order) => (
             <Col sm={12} md={4} lg={4} xl={4} key={order.id}>
               <Order order={order}></Order>
             </Col>

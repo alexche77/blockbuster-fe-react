@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import Rating from "./Rating";
 
 const Order = ({ order }) => {
   return (
