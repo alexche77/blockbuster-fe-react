@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "react-bootstrap/Button";
-import { Badge, Form, Col, Container } from "react-bootstrap";
+import { Badge, Form } from "react-bootstrap";
 import {
   cleanUpOrdersState,
   listOrderDetails,
@@ -13,11 +13,21 @@ import FormContainer from "../components/FormContainer";
 import MoviePickerModal from "../components/MoviePickerModal";
 import { Link } from "react-router-dom";
 import { listMovements } from "../actions/movementsActions";
-import { addMovement, deleteOrder, publishOrder } from "../services/orderService";
+import {
+  addMovement,
+  deleteOrder,
+  publishOrder,
+} from "../services/orderService";
 import Movement from "../components/Movement";
 const OrderScreen = ({ match, history }) => {
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const [pickingMovie, setPickingMovie] = useState(false);
-  const [errorMessage, seterrorMessage] = useState()
+  const [errorMessage, seterrorMessage] = useState();
   const orderId = match.params.id;
 
   const dispatch = useDispatch();
@@ -28,23 +38,46 @@ const OrderScreen = ({ match, history }) => {
 
   const moviePicked = (movieId) => {
     // Adding movie as movement to order
-    addMovement(orderId, { movie_id: movieId, quantity: 1, price: 0, unit_price: 0 }).then((response) => {
-      console.log(response.data)
-      dispatch(listMovements(orderId))
-    }).catch(error => {
-      let err = error.response && error.response.data.detail
-        ? error.response.data.detail
-        : error.detail
-      console.error(err)
-      seterrorMessage(err)
-      setTimeout(() => seterrorMessage(null), 5000)
+    addMovement(orderId, {
+      movie_id: movieId,
+      quantity: 1,
+      price: 0,
+      unit_price: 0,
     })
-
+      .then((response) => {
+        console.log(response.data);
+        dispatch(listMovements(orderId));
+      })
+      .catch((error) => {
+        let err =
+          error.response && error.response.data.detail
+            ? error.response.data.detail
+            : error.detail;
+        console.error(err);
+        seterrorMessage(err);
+        setTimeout(() => seterrorMessage(null), 5000);
+      });
   };
 
   const getOrderTypeHelpMessage = (orderType) => {
     let helpMessage = null;
     switch (orderType) {
+      case 1:
+        helpMessage =
+          "This is a movie purchase";
+        break;
+      case 2:
+        helpMessage =
+          "You are renting this movie. It should be returned in 5 days";
+        break;
+      case 3:
+        helpMessage =
+          "You are returning this rented movie.";
+        break;
+      case 4:
+        helpMessage =
+          "This movie was defective and you are returning it.";
+        break;
       case 5:
         helpMessage =
           "Purchase order represents a purchase that the store made in orter to add products to stock";
@@ -68,25 +101,29 @@ const OrderScreen = ({ match, history }) => {
   };
 
   const handlePublish = () => {
-    publishOrder(orderId).then(() => history.push('/orders')).catch((error) => {
-      let _err = error.response && error.response.data.detail
-        ? error.response.data.detail
-        : error.detail;
-      seterrorMessage(_err)
-
-    })
-  }
+    publishOrder(orderId)
+      .then(() => history.push((isAdmin || isStaff)?"/orders":"/profile"))
+      .catch((error) => {
+        let _err =
+          error.response && error.response.data.detail
+            ? error.response.data.detail
+            : error.detail;
+        seterrorMessage(_err);
+      });
+  };
 
   const handleDelete = () => {
     // TODO Implement double check mech
-    deleteOrder(orderId).then(() => history.push('/orders')).catch((error) => {
-      let _err = error.response && error.response.data.detail
-        ? error.response.data.detail
-        : error.detail;
-      seterrorMessage(_err)
-
-    })
-  }
+    deleteOrder(orderId)
+      .then(() => history.push( (isAdmin || isStaff)?"/orders":"/profile"))
+      .catch((error) => {
+        let _err =
+          error.response && error.response.data.detail
+            ? error.response.data.detail
+            : error.detail;
+        seterrorMessage(_err);
+      });
+  };
 
   const orderTypeChanged = ({ target }) => {
     if (target.value === undefined) return;
@@ -94,21 +131,39 @@ const OrderScreen = ({ match, history }) => {
   };
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
+    if (userInfo) {
+      setIsLoggedIn(true);
+
+      setIsAdmin(
+        userInfo &&
+          userInfo.groups !== undefined &&
+          userInfo.groups.includes("Admins")
+      );
+      setIsStaff(
+        isAdmin ||
+          (userInfo &&
+            userInfo.groups !== undefined &&
+            userInfo.groups.includes("Staff"))
+      );
+    } else {
+      setIsLoggedIn(false);
+      setIsStaff(false);
+      setIsAdmin(false);
+    }
     dispatch(listOrderDetails(orderId));
     dispatch(listMovements(orderId));
     return () => {
       dispatch(cleanUpOrdersState());
     };
-  }, [dispatch, orderId]);
+  }, [dispatch, orderId, userInfo, isAdmin]);
   return (
     <>
-      <Link className="btn btn-light my-3" to="/orders">
+      <Link className="btn btn-light my-3" to={(isAdmin || isStaff)?"/orders":"/profile"}>
         Go back
       </Link>
+      {error && <Message variant="danger"> {error}</Message>}
       {loading ? (
         <Loader />
-      ) : error ? (
-        <Message variant="danger"> {error}</Message>
       ) : (
         <>
           <FormContainer>
@@ -116,20 +171,39 @@ const OrderScreen = ({ match, history }) => {
             <Badge variant="success">Status: {order.state_label}</Badge>
             {error && <Message variant="danger"> {error}</Message>}
             {isUpdating && <Loader />}
-            <Form >
+            <Form>
               <Form.Group controlId="orderForm.OrderTypeSelect">
                 <Form.Label>Order type</Form.Label>
                 <Form.Control
                   defaultValue={order.order_type}
+                  value={order.order_type}
                   as="select"
                   onChange={orderTypeChanged}
-                  disabled={order.order_state !== 0}
+                  disabled={order.order_state !== 0 || !(isAdmin || isStaff)}
                 >
-                  <option disabled>Select order type...</option>
-                  <option value={5}>Purchase</option>
-                  <option value={4}>Defective return</option>
-                  <option value={6}>Adjustment (Add)</option>
-                  <option value={7}>Adjustment (Remove)</option>
+                  {!(isAdmin || isStaff) && (
+                    <>
+                      <option value={1} disabled>Purchase</option>
+                      <option value={2} disabled>Rent</option>
+                      <option value={3} disabled>Rent return</option>
+                      <option value={4} disabled>Defective return</option>
+                    </>
+                  )}
+                  <option disabled>
+                    {isStaff
+                      ? "Select order type..."
+                      : order.order_type == 1
+                      ? "Purchase"
+                      : "Rent"}
+                  </option>
+                  {isStaff && (
+                    <>
+                      <option value={5}>Purchase</option>
+                      <option value={4}>Defective return</option>
+                      <option value={6}>Adjustment (Add)</option>
+                      <option value={7}>Adjustment (Remove)</option>
+                    </>
+                  )}
                 </Form.Control>
                 {order.order_type && (
                   <Message variant="info">
@@ -140,17 +214,44 @@ const OrderScreen = ({ match, history }) => {
 
               {order.order_state === 0 ? (
                 <>
-                  <Button className="w-100" onClick={() => setPickingMovie(true)}> Add movie </Button>
+                  { (isAdmin || isStaff) && <Button
+                    className="w-100"
+                    onClick={() => setPickingMovie(true)}
+                  >
+                    {" "}
+                    Add movie{" "}
+                  </Button>}
                   <div>
-                    <Button className="w-50" variant="success" onClick={handlePublish}> Publish </Button>
-                    <Button className="w-50" variant="danger" onClick={handleDelete}> Delete </Button>
-                  </div></>
-              ) : <Message variant="warning">No actions available, this order is locked</Message>}
+                    <Button
+                      className="w-50"
+                      variant="success"
+                      onClick={handlePublish}
+                    >
+                      {" "}
+                      {(isAdmin || isStaff)? 'Publish':'Finish'}{" "}
+                    </Button>
+                    <Button
+                      className="w-50"
+                      variant="danger"
+                      onClick={handleDelete}
+                    >
+                      {" "}
+                      {(isAdmin || isStaff)? 'Delete':'Cancel'}{" "}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Message variant="warning">
+                  No actions available, this order is locked
+                </Message>
+              )}
               <h2 className="mt-4">Movements</h2>
               {loadingMovements && <Loader></Loader>}
-              {errorMessage && <Message variant="danger" >{errorMessage}</Message>}
-              {movements.map(movement => (
-                <Movement movement={movement} key={movement.id} />
+              {errorMessage && (
+                <Message variant="danger">{errorMessage}</Message>
+              )}
+              {movements.map((movement) => (
+                <Movement movement={movement} key={movement.id} readOnly={!(isAdmin || isStaff)} />
               ))}
             </Form>
           </FormContainer>

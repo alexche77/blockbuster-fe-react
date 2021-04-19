@@ -8,11 +8,23 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 import Order from "../components/Order";
 
-const OrdersListScreen = ({ history }) => {
+const OrdersListScreen = ({ history, location }) => {
   const distpatch = useDispatch();
   const orderList = useSelector((state) => state.orderList);
+  const parseParams = (searchParams) => new URLSearchParams(searchParams)
+  const parseSearch = (url) => !url ? '#' : new URL(url).search
   const [addingNew, setAddingNew] = useState(false);
-  const { loading, error, ordersResponse } = orderList;
+  const { loading, error, ordersResponse :{ next, previous, count, results }} = orderList;
+  const [currentPage, setCurrentPage] = useState(1)
+  const handlePagination = (search) => {
+    if (loading) return;
+    if(!search) {
+      history.push('/orders')
+    }else{
+      
+      history.push(search)
+    }
+  }
   const addNew = () => {
     setAddingNew(true);
     createOrder()
@@ -31,8 +43,27 @@ const OrdersListScreen = ({ history }) => {
 
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
-    distpatch(listOrders());
-  }, [distpatch]);
+    
+    let currentPage = parseParams(location.search).get("page")
+    if (currentPage) {
+      setCurrentPage(currentPage)
+    } else {
+      setCurrentPage(1)
+    }
+    distpatch(listOrders(location.search));
+  }, [distpatch,  location]);
+
+  const paginationBasic = (
+    <div>
+      <Pagination>
+        <Pagination.First disabled={!previous} href={"?page=1"} onClick={(e) => { e.preventDefault(); handlePagination("?page=1") }} />
+        <Pagination.Prev disabled={!previous} onClick={(e) => { e.preventDefault(); handlePagination(parseSearch(previous)) }} />
+        <Pagination.Item active>{currentPage}</Pagination.Item>
+        <Pagination.Next disabled={!next} onClick={(e) => { e.preventDefault(); handlePagination(parseSearch(next)) }} />
+        <Pagination.Last disabled={!next} href={`?page=${Math.round(count / 6) + (((count%6 > 0) ?1:0))}`} onClick={(e) => { e.preventDefault(); handlePagination(`?page=${Math.round(count / 6) + (((count%6 > 0) ?1:0))}`) }} />
+      </Pagination>
+    </div>
+  );
 
   return (
     <>
@@ -50,21 +81,10 @@ const OrdersListScreen = ({ history }) => {
             </Button>
           </Row>
           <Row className="py-4">
-            {ordersResponse.count > 0 && (
-              <Pagination className="pagination">
-                <Pagination.First />
-                <Pagination.Prev />
-                {ordersResponse.results.length == 10 && (
-                  <>
-                    <Pagination.Next />
-                    <Pagination.Last />
-                  </>
-                )}
-              </Pagination>
-            )}
+            {paginationBasic}
           </Row>
           <Row>
-            {ordersResponse.results.map((order) => (
+            {results.map((order) => (
               <Col sm={12} md={4} lg={4} xl={4} key={order.id}>
                 <Order order={order}></Order>
               </Col>

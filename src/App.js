@@ -99,7 +99,7 @@ const App = () => {
             component={OrdersListScreen}
           />
           <ProtectedRoute
-            isEnabled={isStaff || isAdmin}
+            isEnabled={isLoggedIn}
             path="/order/:id"
             component={OrderScreen}
           />

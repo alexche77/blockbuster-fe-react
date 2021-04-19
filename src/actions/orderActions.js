@@ -9,10 +9,10 @@ import {
   ORDER_DETAILS_UPDATING,
 } from "../constants/orderConstants";
 
-export const listOrders = () => async (dispatch) => {
+export const listOrders = (params='') => async (dispatch) => {
   try {
     dispatch({ type: ORDER_LIST_REQUEST });
-    const { data } = await axios.get("/api/orders/");
+    const { data } = await axios.get(`/api/orders/${params}`);
     dispatch({ type: ORDER_LIST_SUCCESS, payload: data });
   } catch (error) {
     dispatch({

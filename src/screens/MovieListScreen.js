@@ -19,13 +19,7 @@ const MovieListScreen = ({ location, history }) => {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const [isStaff, setIsStaff] = useState(false);
-  for (let number = 1; number <= 5; number++) {
-    items.push(
-      <Pagination.Item key={number} active={number === currentPage}>
-        {number}
-      </Pagination.Item>,
-    );
-  }
+ 
   const handlePagination = (search) => {
     if (loading) return;
     history.push(search)
@@ -37,7 +31,7 @@ const MovieListScreen = ({ location, history }) => {
         <Pagination.Prev disabled={!previous} href={parseSearch(previous)} onClick={(e) => { e.preventDefault(); handlePagination(parseSearch(previous)) }} />
         <Pagination.Item active>{currentPage}</Pagination.Item>
         <Pagination.Next disabled={!next} href={parseSearch(next)} onClick={(e) => { e.preventDefault(); handlePagination(parseSearch(next)) }} />
-        <Pagination.Last disabled={!next} href={`?page=${Math.round(count / 6)}`} onClick={(e) => { e.preventDefault(); handlePagination(`?page=${Math.round(count / 6)}`) }} />
+        <Pagination.Last disabled={!next} href={`?page=${Math.round(count / 6) + (((count%6 > 0) ?1:0))}`} onClick={(e) => { e.preventDefault(); handlePagination(`?page=${Math.round(count / 6) + (((count%6 > 0) ?1:0))}`) }} />
       </Pagination>
     </div>
   );
@@ -52,7 +46,6 @@ const MovieListScreen = ({ location, history }) => {
     } else {
       setIsStaff(false);
     }
-    distpatch(listMovies(location.search))
     let currentPage = parseParams(location.search).get("page")
     if (currentPage) {
       setCurrentPage(currentPage)
@@ -73,6 +66,7 @@ const MovieListScreen = ({ location, history }) => {
         <Message variant="danger"> {error}</Message>
       ) : (
         <Row>
+          { results.length < 1 && <Message>No movies have been added, come back soon and don't miss the upcoming premieres {isStaff && 'Go add a new purchase order in Orders to add movies to your inventory'}</Message>}
           { results.map((movie) => (
 
             <Col sm={12} md={isStaff ? 12 : 6} lg={isStaff ? 6 : 4} xl={isStaff ? 6 : 4} key={movie.id}>

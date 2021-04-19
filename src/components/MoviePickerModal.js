@@ -38,7 +38,7 @@ export default function MoviePickerModal(props) {
     if (searchMethod === 'URL') {
       try {
         let imdbUrl = new URL(value.trim().toString())
-        if (imdbUrl.origin !== 'https://www.imdb.com' && !imdbUrl.pathname.includes('/title/')) {
+        if (['https://www.imdb.com','https://m.imdb.com'].includes(imdbUrl.origin)  && !imdbUrl.pathname.includes('/title/')) {
           throw 'URL Not from IMBD'
         }
         let imdbId = imdbUrl.pathname.split('/').filter(value => value.startsWith("tt"))
@@ -110,7 +110,7 @@ export default function MoviePickerModal(props) {
               id="search-method"
             >
               <Dropdown.Item href="#" onSelect={() => handleMethodChange('URL')}>By IMDB Url</Dropdown.Item>
-              <Dropdown.Item href="#" onSelect={() => handleMethodChange('NAME')}>By Name</Dropdown.Item>
+              {/* <Dropdown.Item href="#" onSelect={() => handleMethodChange('NAME')}>By Name</Dropdown.Item> */}
             </DropdownButton>
             <FormControl className="mt-1 info" aria-describedby="movie-search" value={searchTerm} onChange={handleChange} />
           </InputGroup>
