@@ -21,35 +21,33 @@ import Message from "../components/Message";
 import { range } from "lodash-es";
 
 const MovieScreen = ({ history, match }) => {
-  const [qty, setQty] = useState(1);
-  const [profit, setProfit] = useState(1);
-  const [rentPrice, setRentPrice] = useState(0.5);
   const movieId = match.params.id;
   const dispatch = useDispatch();
   const movieDetails = useSelector((state) => state.movieDetails);
   const { loading, error, movie } = movieDetails;
+  const [profit, setProfit] = useState();
+  const [rentPrice, setRentPrice] = useState();
+  
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const [isStaff, setIsStaff] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAvailable, setIsAvailable] = useState(movie.is_available);
-  const purchaseBtn = useRef(null);
-  const rentBtn = useRef(null);
+
+  
+  // const rentBtn = useRef(null);
   // useEffect: This runs as soon as the component loads
   useEffect(() => {
     if (userInfo) {
       setIsStaff(userInfo.groups && userInfo.groups.includes("Staff"));
       setIsAdmin(userInfo.groups && userInfo.groups.includes("Admins"));
-      setIsAuthenticated(userInfo.auth_token != undefined);
+      setIsAuthenticated(userInfo != undefined);
     } else {
       setIsStaff(false);
       setIsAuthenticated(false);
       setIsAdmin(false);
     }
-    setProfit(movie.profit_percentage);
-    setRentPrice(movie.rent_price);
-    setIsAvailable(movie.is_available);
     dispatch(listMovieDetails(movieId));
     return () => {
       dispatch(cleanUpMoviesState());
@@ -170,9 +168,9 @@ const MovieScreen = ({ history, match }) => {
                       <Col>{movie.stock < 1 ? "Out of Stock" : "In Stock"}</Col>
                     </Row>
                   </ListGroup.Item>
+                  {isAuthenticated ? <>
                   <ListGroup.Item>
                     <Button
-                      ref={purchaseBtn}
                       className="btn-block"
                       type="button"
                       onClick={(e) => addToCartHandler("PURCHASE")}
@@ -183,20 +181,10 @@ const MovieScreen = ({ history, match }) => {
                       }
                     >
                       Purchase for ${movie.final_price}
-                    </Button>
-                    <Overlay
-                      target={purchaseBtn.current}
-                      show={!isAuthenticated}
-                      placement="right"
-                    >
-                      <Tooltip id="overlay-needs-auth">
-                        You need to be logged in to do this!
-                      </Tooltip>
-                    </Overlay>
+                    </Button>                    
                   </ListGroup.Item>
                   <ListGroup.Item>
                     <Button
-                      ref={rentBtn}
                       className="btn-block"
                       type="button"
                       onClick={(e) => addToCartHandler("RENT")}
@@ -208,16 +196,8 @@ const MovieScreen = ({ history, match }) => {
                     >
                       Rent for ${movie.rent_price}
                     </Button>
-                    <Overlay
-                      target={rentBtn.current}
-                      show={!isAuthenticated}
-                      placement="right"
-                    >
-                      <Tooltip id="overlay-needs-auth">
-                        You need to be logged in to do this!
-                      </Tooltip>
-                    </Overlay>
                   </ListGroup.Item>
+                  </>: <Message>Please login to rent or buy this movie</Message>}
                 </ListGroup>
               </Card>
             ) : (
@@ -228,12 +208,12 @@ const MovieScreen = ({ history, match }) => {
                     <Col>
                       <Form.Control
                         as="select"
-                        value={profit}
+                        value={profit?profit:movie.profit_percentage  }
                         disabled={!isAdmin}
                         onChange={handleProfitChange}
                       >
                         {range(0, 200, 5).map((x) => (
-                          <option key={x} value={x} selected={x === profit}>
+                          <option key={x} value={x}>
                             {x}
                           </option>
                         ))}
@@ -247,12 +227,12 @@ const MovieScreen = ({ history, match }) => {
                     <Col>
                       <Form.Control
                         as="select"
-                        value={rentPrice}
+                        value={rentPrice ? rentPrice: movie.rent_price}
                         disabled={!isAdmin}
                         onChange={handleRentPrice}
                       >
                         {range(1, 11, 1).map((x) => (
-                          <option key={x} value={x} selected={x === rentPrice}>
+                          <option key={x} value={x}>
                             {x}
                           </option>
                         ))}
