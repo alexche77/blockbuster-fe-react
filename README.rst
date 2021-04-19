@@ -13,6 +13,8 @@ Repositories:
 BackendL https://github.com/alexche77/blockbuster-api-clone
 Frontend: https://github.com/alexche77/blockbuster-fe-react
 
+Postman collection invite link: https://app.getpostman.com/join-team?invite_code=26853aa5797e66955f1f777d5b631502&ws=00ae5a03-9e11-4a9d-b144-ebf4c349eddc
+
 Requirements
 --------------
 
@@ -33,6 +35,25 @@ Requirements
 [NOT_IMPL]The list must be sortable by title (default), and by popularity (likes).
 [OK]The list must have pagination functionality.
 [NOT_IMPL]Search through the movies by name.
+
+
+Security requirements
+[OK]Add login/logout functionality.Preferably JWT.
+[OK]Only admins can add/modify/remove movies.
+[OK]Only logged in users can rent and buy movies.
+[OK]Only logged in users can like movies.
+[OK]Everyone (authenticated or not) can get the list of movies.
+[OK]Everyone (authenticated or not) can get the detail of a movie.
+[OK]Publish your work using heroku and share the link with us.
+Extra credit
+[NOT_IMPL]Recovery and forgot password functionality (send email).
+[NOT_IMPL]Confirming account (send email)
+[OK]Build a small frontend app and connecting to the API. (TBH, it was not that small jaja)
+[OK]As an user with admin role I want to be able to change the role of any user.
+[NOT_IMPL]Unit test, at least 80% of coverage.
+[OK]Include a docker file for production deployments.
+
+
 
 Commands and usage
 --------------
